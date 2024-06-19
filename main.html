@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOW@ Hall</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0d0d0d;
+            color: #ffffff;
+        }
+        .header {
+            background-color: #000000;
+            text-align: center;
+            display: flex;
+            flex-direction: row;
+            justify-content:space-around;
+            align-items: center;
+        }
+        .header img{
+            width: 15%;
+           
+
+        }
+
+        .header h1 {
+            margin: auto;
+            font-size: 4rem;
+
+        }
+
+        .tree{
+            height: 15%;
+            width: 15%;
+            background-color: yellowgreen;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 50px;
+        }
+        .content h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .review-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, #ff0066, #6600ff);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 300px;
+        }
+        .review-card img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        .review-card .name {
+            flex: 1;
+            text-align: left;
+        }
+        .review-card h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .review-card .btn {
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #ff0066, #6600ff);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-main {
+            padding: 10px 20px;
+            margin: 10px;
+            background: linear-gradient(90deg, #ff0066, #6600ff);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .btn-main:hover, .review-card .btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 1300px) {
+            .header {
+                flex-direction: column;
+                padding: 5%;
+            }
+            .header img {
+                margin: 0 0 20px 0;
+                width: 30%;
+                height: 30%;
+            }
+            .header h1{
+                font-size: 3em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="./img/now@hall-logotipo-02branco.png" alt="Logo">
+        <h1>Garanta sua entrada</h1> 
+        <div class="tree"></div>
+    </div>
+    <div class="content">
+        <h2>New Film & TV Reviews</h2>
+        <div class="review-card">
+            <img src="https://via.placeholder.com/50" alt="Profile">
+            <div class="name">
+                <h3>Maria Clara Agostinho</h3>
+            </div>
+            <button class="btn">Adicionar</button>
+        </div>
+        <button class="btn-main">Inscreva-se</button>
+        <button class="btn-main">Inscreva-se</button>
+    </div>
+</body>
+</html>
