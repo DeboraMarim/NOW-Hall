@@ -16,27 +16,21 @@
             text-align: center;
             display: flex;
             flex-direction: row;
-            justify-content:space-around;
+            justify-content: space-around;
             align-items: center;
         }
-        .header img{
+        .header img {
             width: 15%;
-           
-
         }
-
         .header h1 {
             margin: auto;
             font-size: 4rem;
-
         }
-
-        .tree{
+        .tree {
             height: 15%;
             width: 15%;
             background-color: yellowgreen;
         }
-
         .content {
             display: flex;
             justify-content: center;
@@ -104,18 +98,17 @@
                 width: 30%;
                 height: 30%;
             }
-            .header h1{
+            .header h1 {
                 font-size: 3em;
             }
         }
-
     </style>
 </head>
 <body>
     <div class="header">
         <img src="./img/now@hall-logotipo-02branco.png" alt="Logo">
-        <h1>Garanta sua entrada</h1> 
-        <div class="tree"></div>
+        <h1>Garanta sua entrada</h1>
+        <img id="tree-image" class="tree" src="" alt="Imagem dinâmica">
     </div>
     <div class="content">
         <h2>New Film & TV Reviews</h2>
@@ -129,5 +122,39 @@
         <button class="btn-main">Inscreva-se</button>
         <button class="btn-main">Inscreva-se</button>
     </div>
+
+    <script>
+        const sheetId = '19P3siM6goaxnsYdGI0PbX_MhGWmyP9FtulD3tI-KUtU'; // ID da sua planilha
+        const apiKey = '089fb6cfa7fdd9b3eca48260c8c17af1681cebd'; // Substitua pela sua chave de API correta
+        const range = 'Sexta!D4'; // Verifique se o nome da aba está correto, aqui considerei "SEXTAA"
+    
+        async function fetchImageFromSheet() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+            console.log('Fetching URL:', url); // Log da URL para depuração
+    
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log('Data received:', data); // Log dos dados recebidos
+                if (data.values && data.values.length > 0) {
+                    const cellValue = data.values[0][0]; // Supondo que o valor da célula está na célula D4
+                    document.getElementById('tree-image').src = cellValue;
+                } else {
+                    console.error('Nenhum dado encontrado na célula especificada.');
+                }
+            } catch (error) {
+                console.error('Erro ao buscar a imagem:', error);
+            }
+        }
+    
+        fetchImageFromSheet();
+    </script>
+    
+    <img id="tree-image" alt="Tree Image">
+    
+    
 </body>
 </html>
