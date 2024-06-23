@@ -4,28 +4,19 @@ const fs = require('fs');
 
 exports.getAllEvents = async (req, res) => {
   const events = await Event.find();
-  console.log("Eventos carregados:", events); // Adicionar log para depuração
   res.json(events);
 };
 
 exports.createOrUpdateEvent = async (req, res) => {
   try {
-    const { day, price, active } = req.body;
-    let flyer = req.body.flyer;
+    const { day, price } = req.body;
+    let flyer;
 
-    // Remover evento se não estiver ativo
-    if (!active) {
-      const deleteResult = await Event.deleteOne({ day });
-      console.log(`Evento para ${day} removido. Result:`, deleteResult); // Adicionar log para depuração
-      return res.json({ message: `Evento para ${day} removido.` });
-    }
+    // Excluir todos os eventos anteriores antes de adicionar novos
+    const deleteResult = await Event.deleteMany({});
+    console.log("Todos os eventos anteriores foram excluídos. Result:", deleteResult);
 
-    // Validar que a foto e o preço são fornecidos se o evento estiver ativo
-    if (active && (!req.files || !req.files.flyer || !price)) {
-      return res.status(400).json({ message: 'A foto e o preço do evento são obrigatórios.' });
-    }
-
-    // Salvar a imagem no servidor
+    // Validar que a foto e o preço são fornecidos
     if (req.files && req.files.flyer) {
       const flyerFile = req.files.flyer;
       const flyerPath = path.join(__dirname, '../uploads/', flyerFile.name);
@@ -36,25 +27,22 @@ exports.createOrUpdateEvent = async (req, res) => {
           return res.status(500).send(err);
         }
       });
+    } else {
+      return res.status(400).json({ message: 'A foto do evento é obrigatória.' });
     }
 
-    let event = await Event.findOne({ day });
-    if (event) {
-      // Atualiza o evento existente
-      event.flyer = flyer;
-      event.price = price;
-      event.active = active;
-      await event.save();
-      console.log(`Evento atualizado: ${event}`); // Adicionar log para depuração
-    } else {
-      // Cria um novo evento
-      event = new Event({ day, flyer, price, active });
-      await event.save();
-      console.log(`Novo evento criado: ${event}`); // Adicionar log para depuração
+    if (!day || !price) {
+      return res.status(400).json({ message: 'Day e price são obrigatórios.' });
     }
+
+    // Cria um novo evento
+    const event = new Event({ day, flyer, price });
+    await event.save();
+    console.log(`Novo evento criado: ${event}`);
     res.json(event);
+
   } catch (error) {
-    console.error('Erro ao salvar o evento:', error); // Adicionar log para depuração
+    console.error('Erro ao salvar o evento:', error);
     res.status(500).json({ message: 'Erro ao salvar o evento', error });
   }
 };
