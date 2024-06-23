@@ -10,13 +10,9 @@ exports.getAllEvents = async (req, res) => {
 exports.createOrUpdateEvent = async (req, res) => {
   try {
     const { day, price } = req.body;
-    let flyer;
+    let flyer = req.body.flyer;
 
-    // Excluir todos os eventos anteriores antes de adicionar novos
-    const deleteResult = await Event.deleteMany({});
-    console.log("Todos os eventos anteriores foram excluídos. Result:", deleteResult);
-
-    // Validar que a foto e o preço são fornecidos
+    // Salvar a imagem no servidor
     if (req.files && req.files.flyer) {
       const flyerFile = req.files.flyer;
       const flyerPath = path.join(__dirname, '../uploads/', flyerFile.name);
@@ -27,22 +23,23 @@ exports.createOrUpdateEvent = async (req, res) => {
           return res.status(500).send(err);
         }
       });
+    }
+
+    // Limpar os eventos anteriores
+    await Event.deleteMany();
+
+    // Cria ou atualiza o evento
+    let event = await Event.findOne({ day });
+    if (event) {
+      event.flyer = flyer;
+      event.price = price;
+      await event.save();
     } else {
-      return res.status(400).json({ message: 'A foto do evento é obrigatória.' });
+      event = new Event({ day, flyer, price });
+      await event.save();
     }
-
-    if (!day || !price) {
-      return res.status(400).json({ message: 'Day e price são obrigatórios.' });
-    }
-
-    // Cria um novo evento
-    const event = new Event({ day, flyer, price });
-    await event.save();
-    console.log(`Novo evento criado: ${event}`);
     res.json(event);
-
   } catch (error) {
-    console.error('Erro ao salvar o evento:', error);
     res.status(500).json({ message: 'Erro ao salvar o evento', error });
   }
 };

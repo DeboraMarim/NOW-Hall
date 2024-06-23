@@ -3,11 +3,14 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fileUpload = require('express-fileupload');
 const app = express();
 
 app.use(bodyParser.json());
 app.use(cors());
+app.use(fileUpload());
 
+// Conexão com o MongoDB
 mongoose.connect('mongodb://localhost:27017/events', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -29,6 +32,7 @@ app.get('/', (req, res) => {
   res.send('API funcionando');
 });
 
+// Iniciar o servidor
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });
