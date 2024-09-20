@@ -1,39 +1,64 @@
-const axios = require('axios');
-const Event = require('../models/Event');
-const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
+const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
+const PaymentModel = require('../models/Payment');  // Atualize o caminho conforme necessário
 
-exports.createPayment = async (req, res) => {
-  const { names, eventId } = req.body;
-  const event = await Event.findById(eventId);
-  const amount = event.price * names.length;
+const client = new MercadoPagoConfig({
+    accessToken: 'APP_USR-1923560273176252-062722-0be379e0088c3bd981c0aefbb6da8316-241870472',
+    // accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN, 
 
-  // Criar pagamento via Mercado Pago (exemplo simplificado)
-  const response = await axios.post('https://api.mercadopago.com/v1/payments', {
-    transaction_amount: amount,
-    description: 'Ingresso para evento',
-    payment_method_id: 'pix',
-    payer: { email: 'cliente@example.com' },
-  });
+    options: { timeout: 5000 }
+});
 
-  res.json({ payment_id: response.data.id, amount });
+const payment = new Payment(client);
+
+const createPixPayment = async (req, res) => {
+    const { transaction_amount, description, email, identificationType, identificationNumber, names, day } = req.body;
+
+    const body = {
+        transaction_amount,
+        description,
+        payment_method_id: 'pix',
+        payer: {
+            email,
+            identification: {
+                type: identificationType,
+                number: identificationNumber
+            }
+        },
+        metadata: {
+            names,
+            day
+        }
+    };
+
+    const requestOptions = {
+        idempotencyKey: uuidv4()
+    };
+
+    try {
+        const response = await payment.create({ body, requestOptions });
+        console.log("Resposta do Mercado Pago:", response);
+
+        // Salvar os dados do pagamento no MongoDB
+        const paymentData = new PaymentModel({
+            paymentId: response.id,
+            names,
+            day,
+            status: response.status,
+            statusDetail: response.status_detail,
+            transactionAmount: transaction_amount
+        });
+
+        await paymentData.save();
+
+        res.status(200).json(response);  // Enviar a resposta JSON para o frontend
+    } catch (error) {
+        console.error("Erro ao criar o pagamento:", error);
+        res.status(500).json({ error: 'Erro ao criar o pagamento' });
+    }
 };
 
-exports.handleWebhook = async (req, res) => {
-  const { data } = req.body;
-  const paymentId = data.id;
-  const paymentStatus = data.status;
-
-  if (paymentStatus === 'approved') {
-    // Atualizar lista no Google Sheets
-    const doc = new GoogleSpreadsheet('YOUR_GOOGLE_SHEET_ID');
-    await doc.useServiceAccountAuth(require('./google-service-account.json'));
-    await doc.loadInfo();
-
-    const sheet = doc.sheetsByIndex[0];
-    await sheet.addRows(req.body.names.map(name => ({ name, eventId: req.body.eventId })));
-
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(400);
-  }
+module.exports = {
+    createPixPayment
 };

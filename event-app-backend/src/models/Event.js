@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const EventSchema = new mongoose.Schema({
-  date: String,
+  day: String,
   flyer: String,
-  price: Number,
+  pistaPrice: Number,
+  camarotePrice: Number,
+  camaroteOpenPrice: Number,
   active: Boolean,
 });
 

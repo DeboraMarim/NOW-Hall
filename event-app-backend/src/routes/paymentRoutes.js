@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PaymentController = require('../controllers/PaymentController');
 
-router.post('/create', PaymentController.createPayment);
-router.post('/webhook', PaymentController.handleWebhook);
+// Rota para criação de pagamento Pix
+router.post('/create-pix', PaymentController.createPixPayment);
 
 module.exports = router;
